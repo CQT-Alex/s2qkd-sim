@@ -151,7 +151,7 @@ def c_rsig(rc):
     output: QBER =  the overall quantum bit error rate.
 '''
 
-qt = c_QBER(r_pair, dc, tau_c, V,T) #for test
+
 
 def c_QBER (r_pair, dc, tau_c, V,T): 
 
@@ -164,6 +164,8 @@ def c_QBER (r_pair, dc, tau_c, V,T):
     
     QBER = (1/(rsig + ra))*(qi*rsig + 0.5*ra)
     return QBER
+
+qt = c_QBER(r_pair, dc, tau_c, V,T) #for test
 
 '''
     function:   c_private() computes the number of private keys generated per second.
@@ -282,7 +284,8 @@ plotting code below
 '''
 # 10 
 gs = gridspec.GridSpec(10, 1,
-                       height_ratios=[12,1,12,1,12,4,1,1,1,1],
+                       height_ratios=[12,1,12,1,12,4,1,1,1,1], 
+                       width_ratios=[35,1,2,1,2,1,1,1,1,1],
                       )
  
 # the main figure object
