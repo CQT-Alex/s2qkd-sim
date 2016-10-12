@@ -53,50 +53,38 @@
 
     You should have received a copy of the GNU Public License along with
     this source code; if not, see: <https://www.gnu.org/licenses/gpl.html>
-    
-
 
 '''
 
-import os
-import sys
-import csv
-import re
-
 import math
-import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button
 
-from matplotlib.widgets import Slider, Button, RadioButtons
-
-
-#default values 
-V0 = 0.97 # the default visibility
-dc0 = 150e3 # the default dark count reate
-tau_c0 = 2 #coincidance window size in ns
-r_pair0 = 1e6 #default rate of pair generation
+# default values
+V0 = 0.97  # the default visibility
+dc0 = 150e3  # the default dark count reate
+tau_c0 = 2  # coincidance window size in ns
+r_pair0 = 1e6  # default rate of pair generation
 
 axcolor = 'lightgoldenrodyellow'
 
-#global parameters
+# global parameters
 
-#Transmission rate
+# Transmission rate
 T = 1
 
-#pairs generated in the sweetspot of the source
-r_pair = 1e6 #per second
+# pairs generated in the sweetspot of the source
+r_pair = 1e6  # per second
 
-#Dark counts are the same for both Alice and Bob
+# Dark counts are the same for both Alice and Bob
 dc = 150e3
 
-#coincidence window
-tau_c = 1 #seconds
+# coincidence window
+tau_c = 1  # seconds
 
-
-#visibility 
-V = 0.97 # 97% of the paris are good! 
-
-
+# visibility
+V = 0.97  # 97% of the paris are good!
 
 '''
     function:   c_si() computes the detector counts of the sender    
@@ -104,11 +92,13 @@ V = 0.97 # 97% of the paris are good!
             dc  = Dark count reate at the senders side. Cumulative of all the 4 detectors.
     output: si = the singles count on the senders side
 '''
-def c_si ( r_pair,dc): #singles on idler Alice
-    return r_pair + 4*r_pair +dc # 20% of the singles are coincidence
-                                 # will change depending on the window 
-                                 # size and other parameters. 
-                                 
+
+
+def c_si(r_pair, dc):  # singles on idler Alice
+    return r_pair + 4 * r_pair + dc  # 20% of the singles are coincidence
+    # will change depending on the window
+    # size and other parameters.
+
 
 '''
     function:   c_ss() computes the detector counts of the receiver    
@@ -116,36 +106,33 @@ def c_si ( r_pair,dc): #singles on idler Alice
             dc  = Dark count reate at the receiver's side. Cumulative of all the 4 detectors.
     output: si = the singles count on the receiver's side
 '''
-def c_ss (r_pair, T,dc):
-    return r_pair*T +dc #Singles on Bob is dark count + the portion of the pairs successfully transmitted.
 
 
+def c_ss(r_pair, T, dc):
+    return r_pair * T + dc  # Singles on Bob is dark count + the portion of the pairs successfully transmitted.
 
 
-#signal coincidence rate after loss 
-def c_rc (r_pair,T):
-    return r_pair*T 
-
+# signal coincidence rate after loss
+def c_rc(r_pair, T):
+    return r_pair * T
 
 
 # compute the accidental coincedence rate per second.
-def c_ra (si, ss, tau_c):
-    return si*ss* tau_c # the transmission ratio is considered inside the ss
+def c_ra(si, ss, tau_c):
+    return si * ss * tau_c  # the transmission ratio is considered inside the ss
 
 
+# intrinsic Qubit Error Rate
+def c_qi(V):
+    return (1 - V) / 2.0
 
 
-#intrinsic Qubit Error Rate 
-def c_qi (V):
-    return (1-V) /2.0
-    
-
-#signal rate is 1/2 of the coincidence rate. 
+# signal rate is 1/2 of the coincidence rate.
 def c_rsig(rc):
-    return rc*0.5
-    
+    return rc * 0.5
 
-#compute overall QBER 
+
+# compute overall QBER
 
 ''' function: c_QBER computes the overall qubit error rate
     input:  r_pair = pair rate /s
@@ -157,20 +144,19 @@ def c_rsig(rc):
 '''
 
 
-
-def c_QBER (r_pair, dc, tau_c, V,T): 
-
-    ss = c_ss(r_pair,T, dc)
-    si = c_si(r_pair,dc)
-    ra = c_ra(si,ss,tau_c)
-    rc = c_rc(r_pair,T)
+def c_QBER(r_pair, dc, tau_c, V, T):
+    ss = c_ss(r_pair, T, dc)
+    si = c_si(r_pair, dc)
+    ra = c_ra(si, ss, tau_c)
+    rc = c_rc(r_pair, T)
     qi = c_qi(V)
     rsig = c_rsig(rc)
-    
-    QBER = (1/(rsig + ra))*(qi*rsig + 0.5*ra)
+
+    QBER = (1 / (rsig + ra)) * (qi * rsig + 0.5 * ra)
     return QBER
 
-qt = c_QBER(r_pair, dc, tau_c, V,T) #for test
+
+qt = c_QBER(r_pair, dc, tau_c, V, T)  # for test
 
 '''
     function:   c_private() computes the number of private keys generated per second.
@@ -184,31 +170,33 @@ qt = c_QBER(r_pair, dc, tau_c, V,T) #for test
             r_private = private key rate in kbPS (kilo bits per seconds)
 '''
 
-def c_private(r_pair, dc, tau_c, V,T):
-    rc = c_rc(r_pair, T) #actual coincidance
-    rsig = c_rsig(rc)
-    #ra = c_ra(si,ss,tau_c)
-    
-    qt = c_QBER(r_pair, dc, tau_c*1e-9, V,T)
-    
-    # number of raw key bits lost to error correction 
-    rlost_err = rsig *qt*math.log(1/qt,2)
-    
-    #print rlost_err
 
-    #corrected raw keys
+def c_private(r_pair, dc, tau_c, V, T):
+    rc = c_rc(r_pair, T)  # actual coincidance
+    rsig = c_rsig(rc)
+    # ra = c_ra(si,ss,tau_c)
+
+    qt = c_QBER(r_pair, dc, tau_c * 1e-9, V, T)
+
+    # number of raw key bits lost to error correction 
+    rlost_err = rsig * qt * math.log(1 / qt, 2)
+
+    # print rlost_err
+
+    # corrected raw keys
     rcorr = rsig - rlost_err
 
-    #print rcorr
+    # print rcorr
 
-    #after privacy amplification the corrected key is shrinked by half
+    # after privacy amplification the corrected key is shrinked by half
 
-    r_private  =  rcorr/2
+    r_private = rcorr / 2
 
-    return r_private / (1000) # bits to kilo Bytes
+    return r_private / (1000)  # bits to kilo Bytes
+
 
 print 'key'
-#print c_private(qt,r_pair,T)
+# print c_private(qt,r_pair,T)
 
 print 'QBER', qt
 
@@ -223,154 +211,153 @@ print 'QBER', qt
 
     output: ckBps = Number of classical bits exchanged to transfer the compressed time tags. In MBps (mega bytes per second)
 '''
-def c_ccr(r_pair, dc, tau_c, V,T):
+
+
+def c_ccr(r_pair, dc, tau_c, V, T):
     raw_tag_size = 32.0
-    #T = 0.01 #test only
-    ss = c_ss(r_pair,T, dc) #Bob's count rate
-    
-    #time per event
-    tpe = 1/ss
-    
-    #if the clock runs at 1 tick each nanosecond then 
-    #ticks per event
+    # T = 0.01 #test only
+    ss = c_ss(r_pair, T, dc)  # Bob's count rate
+
+    # time per event
+    tpe = 1 / ss
+
+    # if the clock runs at 1 tick each nanosecond then
+    # ticks per event
     ticks_pe = tpe / 1e-9
-    
-    #MSB position per event tag
-    pmsb = math.ceil(math.log(ticks_pe+1,2))
-    
-    #number of 1 in the binary tag on average 
-    num_of_1 = pmsb/2 #assume on avarage half of the bits after msb are 1
-    #print 'pmsb', pmsb
-    p1 = num_of_1 / raw_tag_size #assuming 32 bit tags
-    p0 = (raw_tag_size-num_of_1)/raw_tag_size # if not 1 it is 0
-    
-    #shanon ent per bit 
-    h = -p1*math.log(p1,2) - p0*math.log(p0,2)
-    #print 'shanon', h
-    #lassical bits needed for tagging ss number of events
-    total_tag_bits =  ss*raw_tag_size
-    
-    #total compressed tag bits
-    c_t_bits = total_tag_bits*h
-    #print total_tag_bits/(8*1024)
-    
-    #print c_t_bits*1.2/(8*1024)
-    ckBps = c_t_bits*1.2/(10**6)
-    
-    return ckBps # 1.2 is the implementation ineffieiency of the compression algorithm
-    
-print 'ccr', c_ccr(r_pair, dc, tau_c, V,T) #test
+
+    # MSB position per event tag
+    pmsb = math.ceil(math.log(ticks_pe + 1, 2))
+
+    # number of 1 in the binary tag on average
+    num_of_1 = pmsb / 2  # assume on avarage half of the bits after msb are 1
+    # print 'pmsb', pmsb
+    p1 = num_of_1 / raw_tag_size  # assuming 32 bit tags
+    p0 = (raw_tag_size - num_of_1) / raw_tag_size  # if not 1 it is 0
+
+    # shanon ent per bit
+    h = -p1 * math.log(p1, 2) - p0 * math.log(p0, 2)
+    # print 'shanon', h
+    # lassical bits needed for tagging ss number of events
+    total_tag_bits = ss * raw_tag_size
+
+    # total compressed tag bits
+    c_t_bits = total_tag_bits * h
+    # print total_tag_bits/(8*1024)
+
+    # print c_t_bits*1.2/(8*1024)
+    ckBps = c_t_bits * 1.2 / (10 ** 6)
+
+    return ckBps  # 1.2 is the implementation ineffieiency of the compression algorithm
 
 
-#T_list = [x*0.0001 for x in range(0,10001)]
-T_db = [x*(-0.01) for x in reversed(range(0,6001))] #transmission factor in dB
-#print T_list
+print 'ccr', c_ccr(r_pair, dc, tau_c, V, T)  # test
 
-print len(T_db) ,'tdb'
-T_list = [ 10**( x/10) for x in T_db]  #transmission factor 
+# T_list = [x*0.0001 for x in range(0,10001)]
+T_db = [x * (-0.01) for x in reversed(range(0, 6001))]  # transmission factor in dB
+# print T_list
+
+print len(T_db), 'tdb'
+T_list = [10 ** (x / 10) for x in T_db]  # transmission factor
 print len(T_list), 'tlist'
 
-QBER_list = [c_QBER (r_pair, dc, tau_c*1e-9, V,x) for x in T_list]
-#print QBER_list 
+QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+# print QBER_list
 
-#compute the private key rate
-keyr_list = [c_private (r_pair, dc, tau_c*1e-9, V,x) for x in T_list]
+# compute the private key rate
+keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 
-#print keyr_list
-#the classicla link rate Bob to Alice
-ccr_list = [c_ccr (r_pair, dc, tau_c*1e-9, V,x) for x in T_list]
+# print keyr_list
+# the classicla link rate Bob to Alice
+ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 
-#print ccr_list
-#def c_private(qt,rc,T):
+# print ccr_list
+# def c_private(qt,rc,T):
 
-    
+
 '''
 plotting code below
 '''
 # 10 
 gs = gridspec.GridSpec(10, 1,
-                       height_ratios=[12,1,12,1,12,4,1,1,1,1], 
-                       width_ratios=[35,1,2,1,2,1,1,1,1,1],
-                      )
-
+                       height_ratios=[12, 1, 12, 1, 12, 4, 1, 1, 1, 1],
+                       width_ratios=[35, 1, 2, 1, 2, 1, 1, 1, 1, 1],
+                       )
 
 gs.update(left=0.30, right=0.95, wspace=0.05)
 
 # the main figure object
-fig = plt.figure(figsize=(12,10))
-fig.canvas.set_window_title('S^2QKD simulations') 
+fig = plt.figure(figsize=(12, 10))
+fig.canvas.set_window_title('S^2QKD simulations')
 axQBER = plt.subplot(gs[0])
 axQBER.set_ylabel('QBER')
-#axQBER.set_xlabel('Transmission factor T (dB)')
+# axQBER.set_xlabel('Transmission factor T (dB)')
 plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
-
 
 lqb, = axQBER.plot(T_db, QBER_list, lw=2, color='red')
 axQBER.axis([-60, 0, 0, 0.5])
 
 # make these tick labels invisible
-#plt.setp(axQBER.get_xticklabels(), visible=False)
+# plt.setp(axQBER.get_xticklabels(), visible=False)
 
 
-axtau = plt.subplot(gs[5+2], axisbg=axcolor)
-stau = Slider(axtau, 'Coincidence window (ns)',0.5,5,valinit = tau_c0)
+axtau = plt.subplot(gs[5 + 2], axisbg=axcolor)
+stau = Slider(axtau, 'Coincidence window (ns)', 0.5, 5, valinit=tau_c0)
 
+axdc = plt.subplot(gs[4 + 2], axisbg=axcolor)
+sdc = Slider(axdc, 'Dark count rate', 0, 300e3, valinit=dc0)
 
-axdc = plt.subplot(gs[4+2], axisbg=axcolor)
-sdc = Slider(axdc, 'Dark count rate',0,300e3,valinit = dc0)
-
-axrpair = plt.subplot(gs[7+2], axisbg=axcolor)
+axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
 srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
 
-
-axvis = plt.subplot(gs[6+2], axisbg=axcolor)
+axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
 svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
 
-axccr = plt.subplot(gs[2],sharex=axQBER)
+axccr = plt.subplot(gs[2], sharex=axQBER)
 axccr.set_ylabel('Classical communication rate (Mbps)')
-axccr.axis([-60, 0, 0, 6*8])
+axccr.axis([-60, 0, 0, 6 * 8])
 
-lcr, = axccr.plot(T_db,ccr_list, lw=2,color='green')
+lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
 
-#axccr.set_xlabel('Transmission factor T (dB)')
+# axccr.set_xlabel('Transmission factor T (dB)')
 # make these tick labels invisible
-#plt.setp(axccr.get_xticklabels(), visible=False)
+# plt.setp(axccr.get_xticklabels(), visible=False)
 
 
-axkeyr = plt.subplot(gs[4],sharex=axQBER)
+axkeyr = plt.subplot(gs[4], sharex=axQBER)
 axkeyr.set_ylabel('Private key rate (kbps)')
 axkeyr.set_xlabel('Transmission factor T (dB)')
-axkeyr.axis([-60, 0, 0, 50*8])
+axkeyr.axis([-60, 0, 0, 50 * 8])
 
-lkr, = axkeyr.plot(T_db,keyr_list, lw=2,color='blue')
+lkr, = axkeyr.plot(T_db, keyr_list, lw=2, color='blue')
 
 
-#the onclick update module for the slider
+# the onclick update module for the slider
 def update(val):
     global V
     global dc
     global tau_c
     global QBER_list
-    global keyr_list 
+    global keyr_list
     global ccr_list
     global r_pair
-    
+
     tau_c = stau.val
     V = svis.val
     dc = sdc.val
     r_pair = srpair.val
-     
-    QBER_list = [c_QBER (r_pair, dc, tau_c*1e-9, V,x) for x in T_list]
+
+    QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
     lqb.set_ydata(QBER_list)
-    
-    keyr_list = [c_private (r_pair, dc, tau_c*1e-9, V,x) for x in T_list]
+
+    keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
     lkr.set_ydata(keyr_list)
-    
-    ccr_list = [c_ccr (r_pair, dc, tau_c*1e-9, V,x) for x in T_list]
+
+    ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
     lcr.set_ydata(ccr_list)
-    
+
     fig.canvas.draw_idle()
-    
+
+
 svis.on_changed(update)
 sdc.on_changed(update)
 stau.on_changed(update)
@@ -379,18 +366,17 @@ srpair.on_changed(update)
 resetax = plt.axes([0.85, 0.93, 0.1, 0.04])
 button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
 
-#the reset function for the reset button
+
+# the reset function for the reset button
 def reset(event):
     svis.reset()
     sdc.reset()
     stau.reset()
     srpair.reset()
-    
-button.on_clicked(reset)
 
+
+button.on_clicked(reset)
 
 plt.savefig("QBER.png")
 
-
 plt.show()
-
