@@ -1,32 +1,39 @@
-    s2qkd-sim.py:   This interactive program estimates and visualizes 
-                    Qubit error rate, classical communication rate
-                    and private key rate as a function of the Transmission rate and
-                    other parameters.
+s2qkd-sim.py:   This interactive program estimates and visualizes Qubit error
+                rate, classical communication rate and private key rate as a
+                function of the Transmission rate and other parameters.
 
-    input:          Sliders are used to variate the following parameters
-                    DC rate     =   Dark Count on Alice or Bob's side per second.
-                    Cwin        =   Coincidence window
-                    Visibility  =   The visibility of entanglement. (this parameter
-                    quantifies the quality of entanglement)
-                    EP rate     =   The number of entangled pairs generated from the
-                    source per second.   
-                   
-                    reset       =   On click the sliders are reset to the default 
-                     values.
-                   
-    output:         outputs a QBER.png file containing the default plots.
-                   
-    Usages:         To use this program run:    python s2qkd-sim.py
-   
-    Prerequisites:  This program is tested for python2.7
-                    You need the following libraries
-                    numpy    
-                    Scipy
-                    matplotlib
-                  
-                    To install them on Debian or Ubuntu run:
-                       
-                        sudo apt-get install python-numpy python-scipy python-matplotlib
+input:          Sliders are used to to variate the following parameters
+                Dark count rate                     =   Dark Count on Alice or
+                                                         Bob's side per second.
+                Coincidence window                  =   Coincidence window size
+                                                        in nano seconds
+                Visibility                          =   The visibility of
+                                                        entanglement. (this
+                                                        parameter quantifies
+                                                        the quality of 
+                                                        entanglement)
+                Entangled pair generation rate      =   The number of entangled
+                                                        pairs generated from
+                                                        the source per 
+                                                        second.   
+               
+                reset                               =   On click the sliders
+                                                        are reset to the
+                                                        default values.
+               
+output:         outputs a QBER.png file containing the default plots.
+               
+Usages:         To use this program run:    python s2qkd-sim.py
 
-                    Alternatively you can also use pip to install them. 
-                    Please look up the online documentations for pip instructions.
+Prerequisites:  This program is tested for python2.7
+                You need the following libraries
+              
+                matplotlib
+              
+                To install them on Debian or Ubuntu run:
+                   
+                    sudo apt-get install python-matplotlib
+
+                Alternatively you can also use pip to install them. Please look
+                up the pip online documentation for pip instructions.
+

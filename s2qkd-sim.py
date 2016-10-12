@@ -1,14 +1,26 @@
 '''
-    s2qkd-sim.py:   This interactive program estimates and visualizes Qubit error rate, classical communication rate
-                    and private key rate as a function of the Transmission rate and other parameters.
+    s2qkd-sim.py:   This interactive program estimates and visualizes Qubit error
+                    rate, classical communication rate and private key rate as a
+                    function of the Transmission rate and other parameters.
 
     input:          Sliders are used to to variate the following parameters
-                    DC rate     =   Dark Count on Alice or Bob's side per second.
-                    Cwin        =   Coincidence window
-                    Visibility  =   The visibility of entanglement. (this parameter quantifies the quality of entanglement)
-                    EP rate     =   The number of entangled pairs generated from the source per second.   
+                    Dark count rate                     =   Dark Count on Alice or
+                                                             Bob's side per second.
+                    Coincidence window                  =   Coincidence window size
+                                                            in nano seconds
+                    Visibility                          =   The visibility of
+                                                            entanglement. (this
+                                                            parameter quantifies
+                                                            the quality of 
+                                                            entanglement)
+                    Entangled pair generation rate      =   The number of entangled
+                                                            pairs generated from
+                                                            the source per 
+                                                            second.   
                    
-                    reset       =   On click the sliders are reset to the default values.
+                    reset                               =   On click the sliders
+                                                            are reset to the
+                                                            default values.
                    
     output:         outputs a QBER.png file containing the default plots.
                    
@@ -16,15 +28,15 @@
    
     Prerequisites:  This program is tested for python2.7
                     You need the following libraries
-                    numpy    
-                    Scipy
+                  
                     matplotlib
                   
                     To install them on Debian or Ubuntu run:
                        
-                        sudo apt-get install python-numpy python-scipy python-matplotlib
+                        sudo apt-get install python-matplotlib
 
-                    Alternatively you can also use pip to install them. Please look up the internet for pip instructions.
+                    Alternatively you can also use pip to install them. Please look
+                    up the pip online documentation for pip instructions.
                         
     Copyright (C) 2016 Tanvirul Islam, National University
                          of Singapore <tanvirulbd@gmail.com>
@@ -48,19 +60,12 @@
 
 import os
 import sys
-import inspect 
 import csv
 import re
-import numpy as np
-
-import bisect
 
 import math
-from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
-from scipy import ndimage
 
 from matplotlib.widgets import Slider, Button, RadioButtons
 
@@ -176,7 +181,7 @@ qt = c_QBER(r_pair, dc, tau_c, V,T) #for test
             T = Transmission factor
             
     output:
-            r_private = private key rate in kBPS (kilo Bytes per seconds)
+            r_private = private key rate in kbPS (kilo bits per seconds)
 '''
 
 def c_private(r_pair, dc, tau_c, V,T):
@@ -200,7 +205,7 @@ def c_private(r_pair, dc, tau_c, V,T):
 
     r_private  =  rcorr/2
 
-    return r_private / (8*1024) # bits to kilo Bytes
+    return r_private / (1000) # bits to kilo Bytes
 
 print 'key'
 #print c_private(qt,r_pair,T)
@@ -208,7 +213,7 @@ print 'key'
 print 'QBER', qt
 
 '''
-    compute the classical link rate in mega bytes per secont MBps
+    compute the classical link rate in mega bits per secont Mbps (10**6 bits = 1 mega bits)
     function:   c_ccr() computes the classical communication required to transmit the tags from Bob to Alice (receiver to sender)
     input:  r_pair = pair rate /s
             dc = Dark count /s
@@ -250,11 +255,11 @@ def c_ccr(r_pair, dc, tau_c, V,T):
     #print total_tag_bits/(8*1024)
     
     #print c_t_bits*1.2/(8*1024)
-    ckBps = c_t_bits*1.2/(8*1024*1024)
+    ckBps = c_t_bits*1.2/(10**6)
     
     return ckBps # 1.2 is the implementation ineffieiency of the compression algorithm
     
-c_ccr(r_pair, dc, tau_c, V,T) #test
+print 'ccr', c_ccr(r_pair, dc, tau_c, V,T) #test
 
 
 #T_list = [x*0.0001 for x in range(0,10001)]
@@ -287,9 +292,12 @@ gs = gridspec.GridSpec(10, 1,
                        height_ratios=[12,1,12,1,12,4,1,1,1,1], 
                        width_ratios=[35,1,2,1,2,1,1,1,1,1],
                       )
- 
+
+
+gs.update(left=0.30, right=0.95, wspace=0.05)
+
 # the main figure object
-fig = plt.figure(figsize=(7,10))
+fig = plt.figure(figsize=(12,10))
 fig.canvas.set_window_title('S^2QKD simulations') 
 axQBER = plt.subplot(gs[0])
 axQBER.set_ylabel('QBER')
@@ -305,22 +313,22 @@ axQBER.axis([-60, 0, 0, 0.5])
 
 
 axtau = plt.subplot(gs[5+2], axisbg=axcolor)
-stau = Slider(axtau, 'Cwin (ns)',0.5,5,valinit = tau_c0)
+stau = Slider(axtau, 'Coincidence window (ns)',0.5,5,valinit = tau_c0)
 
 
 axdc = plt.subplot(gs[4+2], axisbg=axcolor)
-sdc = Slider(axdc, 'DC rate',0,300e3,valinit = dc0)
+sdc = Slider(axdc, 'Dark count rate',0,300e3,valinit = dc0)
 
 axrpair = plt.subplot(gs[7+2], axisbg=axcolor)
-srpair = Slider(axrpair, 'EP rate', 0, 2e6, valinit=r_pair0)
+srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
 
 
 axvis = plt.subplot(gs[6+2], axisbg=axcolor)
 svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
 
 axccr = plt.subplot(gs[2],sharex=axQBER)
-axccr.set_ylabel('CC rate (MBps)')
-axccr.axis([-60, 0, 0, 6])
+axccr.set_ylabel('Classical communication rate (Mbps)')
+axccr.axis([-60, 0, 0, 6*8])
 
 lcr, = axccr.plot(T_db,ccr_list, lw=2,color='green')
 
@@ -330,9 +338,9 @@ lcr, = axccr.plot(T_db,ccr_list, lw=2,color='green')
 
 
 axkeyr = plt.subplot(gs[4],sharex=axQBER)
-axkeyr.set_ylabel('pkey rate (kBps)')
+axkeyr.set_ylabel('Private key rate (kbps)')
 axkeyr.set_xlabel('Transmission factor T (dB)')
-axkeyr.axis([-60, 0, 0, 50])
+axkeyr.axis([-60, 0, 0, 50*8])
 
 lkr, = axkeyr.plot(T_db,keyr_list, lw=2,color='blue')
 
