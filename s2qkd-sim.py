@@ -228,7 +228,7 @@ def c_ccr(r_pair, dc, tau_c, V,T):
     
     #if the clock runs at 1 tick each nanosecond then 
     #ticks per event
-    ticks_pe = tpe / 10e-9
+    ticks_pe = tpe / 1e-9
     
     #MSB position per event tag
     pmsb = math.ceil(math.log(ticks_pe+1,2))
