@@ -16,7 +16,11 @@ input:          Sliders are used to to variate the following parameters
                                                         pairs generated from
                                                         the source per 
                                                         second.   
-               
+                Detector temperature (C)            =   Given in celcious. The
+                                                        detector temperature
+                                                        drives the dark
+                                                        count rate.  
+                                                            
                 reset                               =   On click the sliders
                                                         are reset to the
                                                         default values.
@@ -28,12 +32,14 @@ Usages:         To use this program run:    python s2qkd-sim.py
 Prerequisites:  This program is tested for python2.7
                 You need the following libraries
               
-                matplotlib
-              
-                To install them on Debian or Ubuntu run:
+                numpy
+                Scipy
+                matplotlib 
                    
-                    sudo apt-get install python-matplotlib
-
+                To install them on Debian or Ubuntu run:
+                        
+                    sudo apt-get install python-numpy python-scipy python-matplotlib 
+                
                 Alternatively you can also use pip to install them. Please look
                 up the pip online documentation for pip instructions.
 

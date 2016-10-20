@@ -17,7 +17,10 @@
                                                             pairs generated from
                                                             the source per 
                                                             second.   
-                   
+                    Detector temperature (C)            =   Given in celcious. The
+                                                            detector temperature
+                                                            drives the dark
+                                                            count rate.  
                     reset                               =   On click the sliders
                                                             are reset to the
                                                             default values.
@@ -29,12 +32,14 @@
     Prerequisites:  This program is tested for python2.7
                     You need the following libraries
                   
-                    matplotlib
-                  
+                    numpy
+                    Scipy
+                    matplotlib 
+                   
                     To install them on Debian or Ubuntu run:
-                       
-                        sudo apt-get install python-matplotlib
-
+                        
+                    sudo apt-get install python-numpy python-scipy python-matplotlib 
+                    
                     Alternatively you can also use pip to install them. Please look
                     up the pip online documentation for pip instructions.
                         
@@ -57,16 +62,50 @@
 '''
 
 import math
+import numpy as np
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button
+from scipy.optimize import curve_fit
+
+
+
+#load temperature vs dark count data
+
+TM = []
+DC = []
+with open("apd_dc.csv") as f:
+    for line in f:
+        tmp, dc = line.split()
+        TM.append(float(tmp)) 
+        DC.append(float(dc)*4) # there are 4 APDs
+
+#curve fit
+
+def func(x, a, b, c):
+    return a * np.exp(b * x) + c
+
+#x = np.linspace(0,4,50)
+#y = func(x, 2.5, 1.3, 0.5)
+x = np.array(TM)
+yn = np.array(DC)
+
+print len(TM)
+print len(DC)
+#exit()
+#yn = y + 20*np.random.normal(size=len(x))
+
+popt, pcov = curve_fit(func, x, yn)
+
+
+
 
 # default values
 V0 = 0.97  # the default visibility
 dc0 = 150e3  # the default dark count reate
 tau_c0 = 2  # coincidance window size in ns
 r_pair0 = 1e6  # default rate of pair generation
-
+tmp0 = 12
 axcolor = 'lightgoldenrodyellow'
 
 # global parameters
@@ -278,9 +317,9 @@ ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 plotting code below
 '''
 # 10 
-gs = gridspec.GridSpec(10, 1,
-                       height_ratios=[12, 1, 12, 1, 12, 4, 1, 1, 1, 1],
-                       width_ratios=[35, 1, 2, 1, 2, 1, 1, 1, 1, 1],
+gs = gridspec.GridSpec(11, 1,
+                       height_ratios=[12, 1, 12, 1, 12, 4, 1, 1, 1, 1,1],
+                       width_ratios=[35, 1, 2, 1, 2, 1, 1, 1, 1, 1,1],
                        )
 
 gs.update(left=0.30, right=0.95, wspace=0.05)
@@ -304,10 +343,14 @@ axtau = plt.subplot(gs[5 + 2], axisbg=axcolor)
 stau = Slider(axtau, 'Coincidence window (ns)', 0.5, 5, valinit=tau_c0)
 
 axdc = plt.subplot(gs[4 + 2], axisbg=axcolor)
-sdc = Slider(axdc, 'Dark count rate', 0, 300e3, valinit=dc0)
+sdc = Slider(axdc, 'Dark count rate', 0, 400e3, valinit=dc0)
 
 axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
 srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
+
+axtmp = plt.subplot(gs[10], axisbg=axcolor)
+stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 25, valinit=tmp0)
+
 
 axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
 svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
@@ -358,15 +401,25 @@ def update(val):
     fig.canvas.draw_idle()
 
 
+
+
+def update_temp(val):
+    global dc
+    dc = func(stmp.val, *popt)
+    sdc.set_val(dc)
+    
+    
+    
 svis.on_changed(update)
 sdc.on_changed(update)
 stau.on_changed(update)
 srpair.on_changed(update)
+stmp.on_changed(update_temp)
 
 resetax = plt.axes([0.85, 0.93, 0.1, 0.04])
 button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
 
-
+    
 # the reset function for the reset button
 def reset(event):
     svis.reset()
