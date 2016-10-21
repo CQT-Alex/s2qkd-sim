@@ -356,7 +356,7 @@ axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
 svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
 
 axccr = plt.subplot(gs[2], sharex=axQBER)
-axccr.set_ylabel('Classical communication rate (Mbps)')
+axccr.set_ylabel('Classical bit rate (Mbps)')
 axccr.axis([-60, 0, 0, 6 * 8])
 
 lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
