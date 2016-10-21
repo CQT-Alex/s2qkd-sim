@@ -17,7 +17,7 @@
                                                             pairs generated from
                                                             the source per 
                                                             second.   
-                    Detector temperature (C)            =   Given in celcious. The
+                    Detector temperature (C)            =   Given in Celsius. The
                                                             detector temperature
                                                             drives the dark
                                                             count rate.  
@@ -102,7 +102,7 @@ popt, pcov = curve_fit(func, x, yn)
 
 # default values
 V0 = 0.97  # the default visibility
-dc0 = 150e3  # the default dark count reate
+dc0 = func(12, *popt) #150e3  # the default dark count reate
 tau_c0 = 2  # coincidance window size in ns
 r_pair0 = 1e6  # default rate of pair generation
 tmp0 = 12
@@ -426,6 +426,7 @@ def reset(event):
     sdc.reset()
     stau.reset()
     srpair.reset()
+    stmp.reset()
 
 
 button.on_clicked(reset)

@@ -16,7 +16,7 @@ input:          Sliders are used to to variate the following parameters
                                                         pairs generated from
                                                         the source per 
                                                         second.   
-                Detector temperature (C)            =   Given in celcious. The
+                Detector temperature (C)            =   Given in Celsius. The
                                                         detector temperature
                                                         drives the dark
                                                         count rate.  
