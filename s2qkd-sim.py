@@ -343,7 +343,7 @@ axtau = plt.subplot(gs[5 + 2], axisbg=axcolor)
 stau = Slider(axtau, 'Coincidence window (ns)', 0.5, 5, valinit=tau_c0)
 
 axdc = plt.subplot(gs[4 + 2], axisbg=axcolor)
-sdc = Slider(axdc, 'Dark count rate', 0, 400e3, valinit=dc0)
+sdc = Slider(axdc, 'Dark count rate at each side', 0, 400e3, valinit=dc0)
 
 axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
 srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
