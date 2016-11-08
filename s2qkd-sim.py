@@ -348,11 +348,15 @@ for t in tmptmp:
 plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
 
 for t in reversed(tmptmp):
-        plt.plot(T_db, qball[t], lw=2,label="APD temp. = "+str(t)+" (C)")
+        plt.plot(T_db, qball[t], lw=2,label="APD temp. = "+str(t)+"$ ^\circ$C")
 
-plt.xlabel("Transmission factor (dB)")
+#inserting degree celsius symbol
+#http://stackoverflow.com/questions/19926246/inserting-a-degree-symbol-into-python-plot
+
+
+plt.xlabel("Optical losses (dB)")
 plt.ylabel("QBER")
-plt.title("QBER vs.Transmission factor at different Temperatures")
+plt.title("QBER vs. Optical losses at different Temperatures")
 
 # # the main figure object
 # fig = plt.figure(figsize=(12, 10))
@@ -378,7 +382,7 @@ plt.title("QBER vs.Transmission factor at different Temperatures")
 # axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
 # srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
 
-# axtmp = plt.subplot(gs[10], axisbg=axcolor)
+# axtmp = plt.subplot(gs[10], axisbg=axcolor) 
 # stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 40, valinit=tmp0)
 
 
