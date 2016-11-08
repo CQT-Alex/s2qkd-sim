@@ -74,7 +74,7 @@ from scipy.optimize import curve_fit
 
 TM = []
 DC = []
-with open("apd_dc.csv") as f:
+with open("new_apd.csv") as f:
     for line in f:
         tmp, dc = line.split()
         TM.append(float(tmp)) 
@@ -215,7 +215,7 @@ def c_private(r_pair, dc, tau_c, V, T):
     rsig = c_rsig(rc)
     # ra = c_ra(si,ss,tau_c)
 
-    qt = c_QBER(r_pair, dc, tau_c * 1e-9, V, T)
+    qt = c_QBER(r_pair, dc, tau_c, V, T)
 
     # number of raw key bits lost to error correction 
     rlost_err = rsig * qt * math.log(1 / qt, 2)
@@ -349,7 +349,7 @@ axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
 srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
 
 axtmp = plt.subplot(gs[10], axisbg=axcolor)
-stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 25, valinit=tmp0)
+stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 40, valinit=tmp0)
 
 
 axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
