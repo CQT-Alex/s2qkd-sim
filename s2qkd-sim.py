@@ -1,4 +1,6 @@
 '''
+    This is a temporary branch created only for generateind a few plots.
+    
     s2qkd-sim.py:   This interactive program estimates and visualizes Qubit error
                     rate, classical communication rate and private key rate as a
                     function of the Transmission rate and other parameters.
@@ -103,7 +105,7 @@ popt, pcov = curve_fit(func, x, yn)
 # default values
 V0 = 0.97  # the default visibility
 dc0 = func(12, *popt) #150e3  # the default dark count reate
-tau_c0 = 2  # coincidance window size in ns
+tau_c0 = 1  # coincidance window size in ns
 r_pair0 = 1e6  # default rate of pair generation
 tmp0 = 12
 axcolor = 'lightgoldenrodyellow'
@@ -120,7 +122,7 @@ r_pair = 1e6  # per second
 dc = 150e3
 
 # coincidence window
-tau_c = 1  # seconds
+tau_c = 1  # nano seconds
 
 # visibility
 V = 0.97  # 97% of the paris are good!
@@ -299,18 +301,18 @@ print len(T_db), 'tdb'
 T_list = [10 ** (x / 10) for x in T_db]  # transmission factor
 print len(T_list), 'tlist'
 
-QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-# print QBER_list
+# QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+# # print QBER_list
 
-# compute the private key rate
-keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+# # compute the private key rate
+# keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 
-# print keyr_list
-# the classicla link rate Bob to Alice
-ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+# # print keyr_list
+# # the classicla link rate Bob to Alice
+# ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 
-# print ccr_list
-# def c_private(qt,rc,T):
+# # print ccr_list
+# # def c_private(qt,rc,T):
 
 
 '''
@@ -324,113 +326,141 @@ gs = gridspec.GridSpec(11, 1,
 
 gs.update(left=0.30, right=0.95, wspace=0.05)
 
-# the main figure object
-fig = plt.figure(figsize=(12, 10))
-fig.canvas.set_window_title('S^2QKD simulations')
-axQBER = plt.subplot(gs[0])
-axQBER.set_ylabel('QBER')
-# axQBER.set_xlabel('Transmission factor T (dB)')
+'''The figure drawing'''
+
+fig = plt.figure(figsize=(12, 6))
+fig.canvas.set_window_title('S^2QKD TEst')
+
+#generate all the plot data for the following temperature values
+tmptmp = [-10,-5,0,5,10,15,20]
+
+qball = {} #dictionary
+
+for t in tmptmp:
+        dc = func(t, *popt)
+        qball[t] = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+        #qball[t] = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+
+#plt.plot(x,y,label="old noise data");
+#plt.plot(x,z,label="old noise data");
+#plt.plot(T_db, QBER_list, lw=2, color='red')
+
 plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
 
-lqb, = axQBER.plot(T_db, QBER_list, lw=2, color='red')
-axQBER.axis([-60, 0, 0, 0.5])
+for t in reversed(tmptmp):
+        plt.plot(T_db, qball[t], lw=2,label="APD temp. = "+str(t)+" (C)")
 
-# make these tick labels invisible
-# plt.setp(axQBER.get_xticklabels(), visible=False)
+plt.xlabel("Transmission factor (dB)")
+plt.ylabel("QBER")
+plt.title("Transmission factor vs. QBER at different Temperatures")
 
+# # the main figure object
+# fig = plt.figure(figsize=(12, 10))
+# fig.canvas.set_window_title('S^2QKD simulations')
+# axQBER = plt.subplot(gs[0])
+# axQBER.set_ylabel('QBER')
+# # axQBER.set_xlabel('Transmission factor T (dB)')
+# plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
 
-axtau = plt.subplot(gs[5 + 2], axisbg=axcolor)
-stau = Slider(axtau, 'Coincidence window (ns)', 0.5, 5, valinit=tau_c0)
+# lqb, = axQBER.plot(T_db, QBER_list, lw=2, color='red')
+# axQBER.axis([-60, 0, 0, 0.5])
 
-axdc = plt.subplot(gs[4 + 2], axisbg=axcolor)
-sdc = Slider(axdc, 'Dark count rate at each side', 0, 400e3, valinit=dc0)
-
-axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
-srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
-
-axtmp = plt.subplot(gs[10], axisbg=axcolor)
-stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 40, valinit=tmp0)
-
-
-axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
-svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
-
-axccr = plt.subplot(gs[2], sharex=axQBER)
-axccr.set_ylabel('Classical bit rate (Mbps)')
-axccr.axis([-60, 0, 0, 6 * 8])
-
-lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
-
-# axccr.set_xlabel('Transmission factor T (dB)')
-# make these tick labels invisible
-# plt.setp(axccr.get_xticklabels(), visible=False)
+# # make these tick labels invisible
+# # plt.setp(axQBER.get_xticklabels(), visible=False)
 
 
-axkeyr = plt.subplot(gs[4], sharex=axQBER)
-axkeyr.set_ylabel('Private key rate (kbps)')
-axkeyr.set_xlabel('Transmission factor T (dB)')
-axkeyr.axis([-60, 0, 0, 50 * 8])
+# axtau = plt.subplot(gs[5 + 2], axisbg=axcolor)
+# stau = Slider(axtau, 'Coincidence window (ns)', 0.5, 5, valinit=tau_c0)
 
-lkr, = axkeyr.plot(T_db, keyr_list, lw=2, color='blue')
+# axdc = plt.subplot(gs[4 + 2], axisbg=axcolor)
+# sdc = Slider(axdc, 'Dark count rate at each side', 0, 400e3, valinit=dc0)
 
+# axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
+# srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
 
-# the onclick update module for the slider
-def update(val):
-    global V
-    global dc
-    global tau_c
-    global QBER_list
-    global keyr_list
-    global ccr_list
-    global r_pair
-
-    tau_c = stau.val
-    V = svis.val
-    dc = sdc.val
-    r_pair = srpair.val
-
-    QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-    lqb.set_ydata(QBER_list)
-
-    keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-    lkr.set_ydata(keyr_list)
-
-    ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-    lcr.set_ydata(ccr_list)
-
-    fig.canvas.draw_idle()
+# axtmp = plt.subplot(gs[10], axisbg=axcolor)
+# stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 40, valinit=tmp0)
 
 
+# axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
+# svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
+
+# axccr = plt.subplot(gs[2], sharex=axQBER)
+# axccr.set_ylabel('Classical bit rate (Mbps)')
+# axccr.axis([-60, 0, 0, 6 * 8])
+
+# lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
+
+# # axccr.set_xlabel('Transmission factor T (dB)')
+# # make these tick labels invisible
+# # plt.setp(axccr.get_xticklabels(), visible=False)
 
 
-def update_temp(val):
-    global dc
-    dc = func(stmp.val, *popt)
-    sdc.set_val(dc)
+# axkeyr = plt.subplot(gs[4], sharex=axQBER)
+# axkeyr.set_ylabel('Private key rate (kbps)')
+# axkeyr.set_xlabel('Transmission factor T (dB)')
+# axkeyr.axis([-60, 0, 0, 50 * 8])
+
+# lkr, = axkeyr.plot(T_db, keyr_list, lw=2, color='blue')
+
+
+# # the onclick update module for the slider
+# def update(val):
+#     global V
+#     global dc
+#     global tau_c
+#     global QBER_list
+#     global keyr_list
+#     global ccr_list
+#     global r_pair
+
+#     tau_c = stau.val
+#     V = svis.val
+#     dc = sdc.val
+#     r_pair = srpair.val
+
+#     QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+#     lqb.set_ydata(QBER_list)
+
+#     keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+#     lkr.set_ydata(keyr_list)
+
+#     ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
+#     lcr.set_ydata(ccr_list)
+
+#     fig.canvas.draw_idle()
+
+
+
+
+# def update_temp(val):
+#     global dc
+#     dc = func(stmp.val, *popt)
+#     sdc.set_val(dc)
     
     
     
-svis.on_changed(update)
-sdc.on_changed(update)
-stau.on_changed(update)
-srpair.on_changed(update)
-stmp.on_changed(update_temp)
+# svis.on_changed(update)
+# sdc.on_changed(update)
+# stau.on_changed(update)
+# srpair.on_changed(update)
+# stmp.on_changed(update_temp)
 
-resetax = plt.axes([0.85, 0.93, 0.1, 0.04])
-button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
+# resetax = plt.axes([0.85, 0.93, 0.1, 0.04])
+# button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
 
     
-# the reset function for the reset button
-def reset(event):
-    svis.reset()
-    sdc.reset()
-    stau.reset()
-    srpair.reset()
-    stmp.reset()
+# # the reset function for the reset button
+# def reset(event):
+#     svis.reset()
+#     sdc.reset()
+#     stau.reset()
+#     srpair.reset()
+#     stmp.reset()
 
 
-button.on_clicked(reset)
-
-plt.savefig("QBER.png")
+# button.on_clicked(reset)
+plt.legend()
+plt.savefig("QBER-TempPlot.png")
 
 plt.show()
