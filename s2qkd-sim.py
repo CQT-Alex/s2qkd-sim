@@ -352,7 +352,7 @@ for t in reversed(tmptmp):
 
 plt.xlabel("Transmission factor (dB)")
 plt.ylabel("QBER")
-plt.title("Transmission factor vs. QBER at different Temperatures")
+plt.title("QBER vs.Transmission factor at different Temperatures")
 
 # # the main figure object
 # fig = plt.figure(figsize=(12, 10))
