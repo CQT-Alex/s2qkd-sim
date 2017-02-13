@@ -1,4 +1,6 @@
 '''
+    Plot for review paper's classical communication section.
+    
     s2qkd-sim.py:   This interactive program estimates and visualizes Qubit error
                     rate, classical communication rate and private key rate as a
                     function of the Transmission rate and other parameters.
@@ -102,10 +104,13 @@ popt, pcov = curve_fit(func, x, yn)
 
 # default values
 V0 = 0.97  # the default visibility
-dc0 = func(12, *popt) #150e3  # the default dark count reate
+
+tmp0 = 12
+
+dc0 = func(tmp0, *popt) #150e3  # the default dark count reate
 tau_c0 = 2  # coincidance window size in ns
 r_pair0 = 1e6  # default rate of pair generation
-tmp0 = 12
+
 axcolor = 'lightgoldenrodyellow'
 
 # global parameters
@@ -292,7 +297,7 @@ def c_ccr(r_pair, dc, tau_c, V, T):
 print 'ccr', c_ccr(r_pair, dc, tau_c, V, T)  # test
 
 # T_list = [x*0.0001 for x in range(0,10001)]
-T_db = [x * (-0.01) for x in reversed(range(0, 6001))]  # transmission factor in dB
+T_db = [x * (-0.01) for x in reversed(range(0, 3001))]  # transmission factor in dB
 # print T_list
 
 print len(T_db), 'tdb'
@@ -301,7 +306,7 @@ print len(T_list), 'tlist'
 
 QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 # print QBER_list
-
+print len(QBER_list), 'qber list'
 # compute the private key rate
 keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 
@@ -316,6 +321,9 @@ ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
 '''
 plotting code below
 '''
+pos_T_db = [-1*vx for vx in T_db] #define loss as teh positive value in db.
+
+print len(pos_T_db), 'len pos'
 # 10 
 gs = gridspec.GridSpec(11, 1,
                        height_ratios=[12, 1, 12, 1, 12, 4, 1, 1, 1, 1,1],
@@ -332,8 +340,8 @@ axQBER.set_ylabel('QBER')
 # axQBER.set_xlabel('Transmission factor T (dB)')
 plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
 
-lqb, = axQBER.plot(T_db, QBER_list, lw=2, color='red')
-axQBER.axis([-60, 0, 0, 0.5])
+lqb, = axQBER.plot(pos_T_db, QBER_list, lw=2, color='red')
+axQBER.axis([0, 30, 0, 0.5])
 
 # make these tick labels invisible
 # plt.setp(axQBER.get_xticklabels(), visible=False)
@@ -357,9 +365,9 @@ svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
 
 axccr = plt.subplot(gs[2], sharex=axQBER)
 axccr.set_ylabel('Classical bit rate (Mbps)')
-axccr.axis([-60, 0, 0, 6 * 8])
+axccr.axis([0, 30, 0, 6 * 8])
 
-lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
+lcr, = axccr.plot(pos_T_db, ccr_list, lw=2, color='green')
 
 # axccr.set_xlabel('Transmission factor T (dB)')
 # make these tick labels invisible
@@ -369,9 +377,9 @@ lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
 axkeyr = plt.subplot(gs[4], sharex=axQBER)
 axkeyr.set_ylabel('Private key rate (kbps)')
 axkeyr.set_xlabel('Transmission factor T (dB)')
-axkeyr.axis([-60, 0, 0, 50 * 8])
+axkeyr.axis([0, 30, 0, 50 * 8])
 
-lkr, = axkeyr.plot(T_db, keyr_list, lw=2, color='blue')
+lkr, = axkeyr.plot(pos_T_db, keyr_list, lw=2, color='blue')
 
 
 # the onclick update module for the slider
@@ -431,6 +439,6 @@ def reset(event):
 
 button.on_clicked(reset)
 
-plt.savefig("QBER.png")
+plt.savefig("QBER.svg")
 
 plt.show()
