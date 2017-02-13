@@ -346,9 +346,12 @@ for t in tmptmp:
 #plt.plot(T_db, QBER_list, lw=2, color='red')
 
 plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
+pos_T_db = [-1*vx for vx in T_db]
 
 for t in reversed(tmptmp):
-        plt.plot(T_db, qball[t], lw=2,label="APD temp. = "+str(t)+"$ ^\circ$C")
+        #plt.plot(pos_T_db, qball[t], lw=2,label="APD temp. = "+str(t)+"$ ^\circ$C")
+        #plt.plot(pos_T_db, qball[t], lw=2,label=str(t)+"$ ^\circ$C")
+        plt.plot(pos_T_db, qball[t], lw=2,label=str(t+273.15)+"K")
 
 #inserting degree celsius symbol
 #http://stackoverflow.com/questions/19926246/inserting-a-degree-symbol-into-python-plot
@@ -356,115 +359,9 @@ for t in reversed(tmptmp):
 
 plt.xlabel("Optical losses (dB)")
 plt.ylabel("QBER")
-plt.title("QBER vs. Optical losses at different Temperatures")
+plt.title("QBER vs. Optical losses at different temperatures")
 
-# # the main figure object
-# fig = plt.figure(figsize=(12, 10))
-# fig.canvas.set_window_title('S^2QKD simulations')
-# axQBER = plt.subplot(gs[0])
-# axQBER.set_ylabel('QBER')
-# # axQBER.set_xlabel('Transmission factor T (dB)')
-# plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
-
-# lqb, = axQBER.plot(T_db, QBER_list, lw=2, color='red')
-# axQBER.axis([-60, 0, 0, 0.5])
-
-# # make these tick labels invisible
-# # plt.setp(axQBER.get_xticklabels(), visible=False)
-
-
-# axtau = plt.subplot(gs[5 + 2], axisbg=axcolor)
-# stau = Slider(axtau, 'Coincidence window (ns)', 0.5, 5, valinit=tau_c0)
-
-# axdc = plt.subplot(gs[4 + 2], axisbg=axcolor)
-# sdc = Slider(axdc, 'Dark count rate at each side', 0, 400e3, valinit=dc0)
-
-# axrpair = plt.subplot(gs[7 + 2], axisbg=axcolor)
-# srpair = Slider(axrpair, 'Entengled pair generation rate', 0, 2e6, valinit=r_pair0)
-
-# axtmp = plt.subplot(gs[10], axisbg=axcolor) 
-# stmp = Slider(axtmp, 'Detector temperature (C) ' , -25, 40, valinit=tmp0)
-
-
-# axvis = plt.subplot(gs[6 + 2], axisbg=axcolor)
-# svis = Slider(axvis, 'Visibility', 0.78, 1, valinit=V0)
-
-# axccr = plt.subplot(gs[2], sharex=axQBER)
-# axccr.set_ylabel('Classical bit rate (Mbps)')
-# axccr.axis([-60, 0, 0, 6 * 8])
-
-# lcr, = axccr.plot(T_db, ccr_list, lw=2, color='green')
-
-# # axccr.set_xlabel('Transmission factor T (dB)')
-# # make these tick labels invisible
-# # plt.setp(axccr.get_xticklabels(), visible=False)
-
-
-# axkeyr = plt.subplot(gs[4], sharex=axQBER)
-# axkeyr.set_ylabel('Private key rate (kbps)')
-# axkeyr.set_xlabel('Transmission factor T (dB)')
-# axkeyr.axis([-60, 0, 0, 50 * 8])
-
-# lkr, = axkeyr.plot(T_db, keyr_list, lw=2, color='blue')
-
-
-# # the onclick update module for the slider
-# def update(val):
-#     global V
-#     global dc
-#     global tau_c
-#     global QBER_list
-#     global keyr_list
-#     global ccr_list
-#     global r_pair
-
-#     tau_c = stau.val
-#     V = svis.val
-#     dc = sdc.val
-#     r_pair = srpair.val
-
-#     QBER_list = [c_QBER(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-#     lqb.set_ydata(QBER_list)
-
-#     keyr_list = [c_private(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-#     lkr.set_ydata(keyr_list)
-
-#     ccr_list = [c_ccr(r_pair, dc, tau_c * 1e-9, V, x) for x in T_list]
-#     lcr.set_ydata(ccr_list)
-
-#     fig.canvas.draw_idle()
-
-
-
-
-# def update_temp(val):
-#     global dc
-#     dc = func(stmp.val, *popt)
-#     sdc.set_val(dc)
-    
-    
-    
-# svis.on_changed(update)
-# sdc.on_changed(update)
-# stau.on_changed(update)
-# srpair.on_changed(update)
-# stmp.on_changed(update_temp)
-
-# resetax = plt.axes([0.85, 0.93, 0.1, 0.04])
-# button = Button(resetax, 'Reset', color=axcolor, hovercolor='0.975')
-
-    
-# # the reset function for the reset button
-# def reset(event):
-#     svis.reset()
-#     sdc.reset()
-#     stau.reset()
-#     srpair.reset()
-#     stmp.reset()
-
-
-# button.on_clicked(reset)
-plt.legend()
-plt.savefig("QBER-TempPlot.png")
+plt.legend(loc=0)
+plt.savefig("QBER-TempPlot.svg")
 
 plt.show()
