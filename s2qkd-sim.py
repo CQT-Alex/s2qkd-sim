@@ -103,11 +103,12 @@ popt, pcov = curve_fit(func, x, yn)
 
 
 # default values
+tmp0 = 10
 V0 = 0.97  # the default visibility
-dc0 = func(12, *popt) #150e3  # the default dark count reate
+dc0 = func(tmp0, *popt) #150e3  # the default dark count reate
 tau_c0 = 1  # coincidance window size in ns
 r_pair0 = 1e6  # default rate of pair generation
-tmp0 = 12
+
 axcolor = 'lightgoldenrodyellow'
 
 # global parameters
@@ -116,16 +117,16 @@ axcolor = 'lightgoldenrodyellow'
 T = 1
 
 # pairs generated in the sweetspot of the source
-r_pair = 1e6  # per second
+r_pair = r_pair0  # per second
 
 # Dark counts are the same for both Alice and Bob
-dc = 150e3
+dc = dc0
 
 # coincidence window
-tau_c = 1  # nano seconds
+tau_c = tau_c0  # nano seconds
 
 # visibility
-V = 0.97  # 97% of the paris are good!
+V = V0  # 97% of the paris are good!
 
 '''
     function:   c_si() computes the detector counts of the sender    
