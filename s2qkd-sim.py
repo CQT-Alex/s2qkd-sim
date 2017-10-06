@@ -217,7 +217,7 @@ def c_private(r_pair, dc, tau_c, V, T):
 
     qt = c_QBER(r_pair, dc, tau_c, V, T)
 
-    # number of raw key bits lost to error correction 
+    # number of raw key bits lost to error correction assuming cascade error correction code. 
     rlost_err = rsig * qt * math.log(1 / qt, 2)
 
     # print rlost_err
