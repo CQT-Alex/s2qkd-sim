@@ -295,7 +295,7 @@ def c_ccr(r_pair, dc, tau_c, V, T):
 print 'ccr', c_ccr(r_pair, dc, tau_c, V, T)  # test
 
 # T_list = [x*0.0001 for x in range(0,10001)]
-T_db = [x * (-0.01) for x in reversed(range(0, 6001))]  # transmission factor in dB
+T_db = [x * (-0.01) for x in reversed(range(1500, 6001))]  # transmission factor in dB
 # print T_list
 
 print len(T_db), 'tdb'
@@ -333,7 +333,8 @@ fig = plt.figure(figsize=(12, 6))
 fig.canvas.set_window_title('S^2QKD TEst')
 
 #generate all the plot data for the following temperature values
-tmptmp = [-10,-5,0,5,10,15,20]
+#tmptmp = [-20,-15,-10,-5,0,5,10,15,20]
+tmptmp = [-20,-10,0]
 
 qball = {} #dictionary
 
@@ -351,8 +352,8 @@ pos_T_db = [-1*vx for vx in T_db]
 
 for t in reversed(tmptmp):
         #plt.plot(pos_T_db, qball[t], lw=2,label="APD temp. = "+str(t)+"$ ^\circ$C")
-        #plt.plot(pos_T_db, qball[t], lw=2,label=str(t)+"$ ^\circ$C")
-        plt.plot(pos_T_db, qball[t], lw=2,label=str(t+273.15)+"K")
+        plt.plot(pos_T_db, qball[t], lw=2,label=str(t)+"$ ^\circ$C")
+        #plt.plot(pos_T_db, qball[t], lw=2,label=str(t+273.15)+"K")
 
 #inserting degree celsius symbol
 #http://stackoverflow.com/questions/19926246/inserting-a-degree-symbol-into-python-plot
@@ -360,7 +361,7 @@ for t in reversed(tmptmp):
 
 plt.xlabel("Optical losses (dB)")
 plt.ylabel("QBER")
-plt.title("QBER vs. Optical losses at different temperatures")
+plt.title("QBER vs. Optical losses at different APD temperatures")
 
 plt.legend(loc=0)
 plt.savefig("QBER-TempPlot.svg")
