@@ -334,7 +334,8 @@ fig.canvas.set_window_title('S^2QKD TEst')
 
 #generate all the plot data for the following temperature values
 #tmptmp = [-20,-15,-10,-5,0,5,10,15,20]
-tmptmp = [-20,-10,0]
+tmptmp = [-10,-5,0,5,10,15,20]
+#tmptmp = [-20,-10,0]
 
 qball = {} #dictionary
 
@@ -350,11 +351,18 @@ for t in tmptmp:
 plt.axhline(y=0.11, xmin=0, xmax=1, hold=None)
 pos_T_db = [-1*vx for vx in T_db]
 
-for t in reversed(tmptmp):
+#for t in reversed(tmptmp):
         #plt.plot(pos_T_db, qball[t], lw=2,label="APD temp. = "+str(t)+"$ ^\circ$C")
-        plt.plot(pos_T_db, qball[t], lw=2,label=str(t)+"$ ^\circ$C")
+#        plt.plot(pos_T_db, qball[t], lw=2,label=str(t)+"$ ^\circ$C")
         #plt.plot(pos_T_db, qball[t], lw=2,label=str(t+273.15)+"K")
 
+plt.plot(pos_T_db, qball[20], lw=2,label=str(20)+"$ ^\circ$C", linestyle='-.')
+plt.plot(pos_T_db, qball[15], lw=2,label=str(15)+"$ ^\circ$C", linestyle='--')
+plt.plot(pos_T_db, qball[10], lw=2,label=str(10)+"$ ^\circ$C", dashes=[3,2,3,4])
+plt.plot(pos_T_db, qball[5], lw=2,label=str(5)+"$ ^\circ$C", linestyle=':')
+plt.plot(pos_T_db, qball[0], lw=2,label=str(0)+"$ ^\circ$C", dashes=[1,2,3,4])
+plt.plot(pos_T_db, qball[-5], lw=2,label=str(-5)+"$ ^\circ$C", dashes=[3,4])
+plt.plot(pos_T_db, qball[-10], lw=2,label=str(-10)+"$ ^\circ$C", linestyle='-')
 #inserting degree celsius symbol
 #http://stackoverflow.com/questions/19926246/inserting-a-degree-symbol-into-python-plot
 
@@ -364,6 +372,6 @@ plt.ylabel("QBER")
 plt.title("QBER vs. Optical losses at different APD temperatures")
 
 plt.legend(loc=0)
-plt.savefig("QBER-TempPlot.svg")
+plt.savefig("QBER-TempPlot-bw-friendly.pdf")
 
 plt.show()
